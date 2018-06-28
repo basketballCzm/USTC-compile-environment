@@ -1,0 +1,56 @@
+From da1c40c0df8441ce337a51f21af15aad984727df Mon Sep 17 00:00:00 2001
+From: cxlin <cxlin@zerok.io>
+Date: Mon, 28 May 2018 23:05:40 +1000
+Subject: [PATCH 1/2] Changed build script to also include extra clang
+ toolings.
+
+Also retain the llvm source/build dir during compilation.
+---
+ scripts/eosio_build_ubuntu.sh | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
+
+diff --git a/scripts/eosio_build_ubuntu.sh b/scripts/eosio_build_ubuntu.sh
+index 09ec40f..e678fc4 100644
+--- a/scripts/eosio_build_ubuntu.sh
++++ b/scripts/eosio_build_ubuntu.sh
+@@ -455,6 +455,24 @@ mongodconf
+ 			printf "\\n\\tExiting now.\\n"
+ 			exit 1;
+ 		fi
++		if ! cd "${TEMP_DIR}/llvm-compiler/llvm/tools/clang/tools"
++		then
++			printf "\\tUnable to enter directory %s/llvm-compiler/llvm/tools/clang/tools.\\n" "${TEMP_DIR}"
++			printf "\\n\\tExiting now.\\n"
++			exit 1;
++		fi
++		if ! git clone --depth 1 --single-branch --branch release_40 https://github.com/basketballCzm/clang-tools-extra.git
++		then
++			printf "\\tUnable to clone clang repo @ https://github.com/llvm-mirror/clang-tools-extra.git.\\n"
++			printf "\\n\\tExiting now.\\n"
++			exit 1;
++		fi
++		if ! mv "${TEMP_DIR}/llvm-compiler/llvm/tools/clang/tools/clang-tools-extra" "${TEMP_DIR}/llvm-compiler/llvm/tools/clang/tools/extra"
++		then
++			printf "\\tUnable to mv clang-tools-extra repo.\\n"
++			printf "\\n\\tExiting now.\\n"
++			exit 1;
++		fi
+ 		if ! cd "${TEMP_DIR}/llvm-compiler/llvm"
+ 		then
+ 			printf "\\tUnable to enter directory %s/llvm-compiler/llvm.\\n" "${TEMP_DIR}"
+@@ -486,12 +504,6 @@ mongodconf
+ 			printf "\\n\\tExiting now.\\n"
+ 			exit 1;
+ 		fi
+-		if ! rm -rf "${TEMP_DIR}/llvm-compiler"
+-		then
+-			printf "\\tUnable to remove directory %s/llvm-compiler.\\n" "${TEMP_DIR}"
+-			printf "\\n\\tExiting now.\\n"
+-			exit 1;
+-		fi
+ 		printf "\\n\\tWASM successffully installed @ %s/opt/wasm/bin.\\n\\n" "${HOME}"
+ 	else
+ 		printf "\\tWASM found at %s/opt/wasm/bin.\\n" "${HOME}"
+-- 
+2.7.4
+
